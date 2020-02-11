@@ -3,17 +3,22 @@
 #include <conio.h>
 #include <iostream>
 #include <Windows.h>
-#include "map.h"
+
 
 using namespace System;
 using namespace std;
 
+
+int PoderAn = 1;
+int VarWalk = 1;
+int orientacion;
+
 int mapa[51][120] = {
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-		{ 1,3,3,1,3,3,1,3,3,1,3,3,1,3,3,1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-		{ 1,1,3,3,3,1,1,1,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-		{ 1,1,1,3,1,1,1,1,1,3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
+		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
+		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
+		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
@@ -63,6 +68,10 @@ int mapa[51][120] = {
 
 };
 
+void Disparo(bool* Disparo, int Orientacion) {
+
+}
+
 void createMap() {
 	Console::SetWindowSize(120, 51);
 	Console::CursorVisible = false;
@@ -73,18 +82,21 @@ void createMap() {
 			Console::SetCursorPosition(c, f);
 			if (mapa[f][c] == 1) Console::ForegroundColor = ConsoleColor::Green;
 			if (mapa[f][c] == 2) Console::ForegroundColor = ConsoleColor::Blue;
-			if (mapa[f][c] == 3) Console::ForegroundColor = ConsoleColor::Red;
-			if (mapa[f][c] == 3) Console::ForegroundColor = ConsoleColor::Red;
 			cout << (char)219;
 		}
 	}
 
 }
 
+struct Bala {
+	int x, y;
+	int dx, dy;
+};
+
 
 struct Jugador {
 	char cabeza, cuerpo, Bizquierdo, Bderecho, Patas;
-	int vida,Jx,Jy;
+	int vida, Jx, Jy;
 	int Movimiento = 1;
 
 	Jugador(char cabeza, char cuerpo, char Bizquierdo, char Bderecho, char Patas, int vida, int Jx, int Jy) {
@@ -95,7 +107,7 @@ struct Jugador {
 		this->Patas = Patas;
 		this->Jx = Jx;
 		this->Jy = Jy;
-		this -> vida = vida;
+		this->vida = vida;
 	}
 
 	void Pintar() {
@@ -104,26 +116,26 @@ struct Jugador {
 	}
 
 	void DibujaJugador() {
-			Console::SetCursorPosition(Jx, Jy);
-			Pintar();
-			cout << (char)cabeza;
-			Pintar();
-			Console::SetCursorPosition(Jx, Jy + 1);
-			cout << (char)cuerpo;
-			Pintar();
-			Console::SetCursorPosition(Jx - 1, Jy + 1);
-			cout << (char)Bizquierdo; //Brazo izquierdo
-			Pintar();
-			Console::SetCursorPosition(Jx + 1, Jy + 1);
-			cout << (char)Bderecho; //Brazo derecho
-			Pintar();
-			Console::SetCursorPosition(Jx, Jy + 2);
-			cout << (char)Patas; //Piernas
+		Console::SetCursorPosition(Jx, Jy);
+		Pintar();
+		cout << (char)cabeza;
+		Pintar();
+		Console::SetCursorPosition(Jx, Jy + 1);
+		cout << (char)cuerpo;
+		Pintar();
+		Console::SetCursorPosition(Jx - 1, Jy + 1);
+		cout << (char)Bizquierdo; //Brazo izquierdo
+		Pintar();
+		Console::SetCursorPosition(Jx + 1, Jy + 1);
+		cout << (char)Bderecho; //Brazo derecho
+		Pintar();
+		Console::SetCursorPosition(Jx, Jy + 2);
+		cout << (char)Patas; //Piernas
 	}
 
 	void BorraJugador() {
 		Pintar();
-		Console::SetCursorPosition(this->Jx,Jy);
+		Console::SetCursorPosition(this->Jx, Jy);
 		cout << " ";
 		Pintar();
 		Console::SetCursorPosition(Jx, Jy + 1);
@@ -138,6 +150,15 @@ struct Jugador {
 		Console::SetCursorPosition(Jx, Jy + 2);
 		cout << " ";; //Piernas
 	}
-	
+
+	void DibujaBrazos() {
+		Pintar();
+		Console::SetCursorPosition(Jx - 1, Jy + 1);
+		cout << (char)Bizquierdo; //Brazo izquierdo
+		Pintar();
+		Console::SetCursorPosition(Jx + 1, Jy + 1);
+		cout << (char)Bderecho; //Brazo derecho
+	}
+
 
 };
