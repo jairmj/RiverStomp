@@ -78,9 +78,6 @@ int mapa[51][120] = {
  
 };
  
-void Disparo(bool* Disparo, int Orientacion) {
- 
-}
  
 void createMap() {
     Console::SetWindowSize(120, 51);
@@ -101,6 +98,12 @@ void Pintar() {
     Console::ForegroundColor = ConsoleColor::Black;
     Console::BackgroundColor = ConsoleColor::Green;
 }
+
+void PintarAgua() {
+    Console::ForegroundColor = ConsoleColor::Black;
+    Console::BackgroundColor = ConsoleColor::Blue;
+}
+
 struct Bala {
     int x, y,or;
     int dx, dy;
@@ -114,25 +117,46 @@ struct Bala {
     void DibujaBala() {
  
         if (x + 1 != 120 && x - 1 != -1 && y + 1 != 40 && y - 1 != -1) {
-            Pintar();
             Console::SetCursorPosition(x, y);
+            if (mapa[y][x] == 1) {
+                Console::ForegroundColor = ConsoleColor::Black;
+                Console::BackgroundColor = ConsoleColor::Green;
+            }
+            else if (mapa[y][x] == 2) {
+                Console::ForegroundColor = ConsoleColor::Black;
+                Console::BackgroundColor = ConsoleColor::Blue;
+
+            }
             cout << " ";
             if (or == Norte)y--;
             else if (or == Sur)y++;
             else if (or == Este)x++;
             else if (or == Oeste)x--;
             Console::SetCursorPosition(x, y);
+            if (mapa[y][x] == 1) {
+                Console::ForegroundColor = ConsoleColor::Black;
+                Console::BackgroundColor = ConsoleColor::Green;
+            }
+            else if (mapa[y][x] == 2) {
+                Console::ForegroundColor = ConsoleColor::Black;
+                Console::BackgroundColor = ConsoleColor::Blue;
+            }
             cout << (char)184;
         }
         else {
+            if (mapa[y][x] == 1) {
+                Console::ForegroundColor = ConsoleColor::Black;
+                Console::BackgroundColor = ConsoleColor::Green;
+            }
+            else if (mapa[y][x] == 2) {
+                Console::ForegroundColor = ConsoleColor::Black;
+                Console::BackgroundColor = ConsoleColor::Blue;
+            }
             Console::SetCursorPosition(x, y);
             cout << " ";
         }
     }
 };
- 
- 
- 
  
 struct Jugador {
     char cabeza, cuerpo, Bizquierdo, Bderecho, Patas;
