@@ -3,7 +3,7 @@
 #include <conio.h>
 #include <iostream>
 #include <Windows.h>
- 
+
 #define DERECHA 77
 #define IZQUIERDA 75
 #define ABAJO 80
@@ -14,15 +14,13 @@
 #define Sur 1
 #define Este 2
 #define Oeste 3
- 
+
 using namespace System;
 using namespace std;
- 
- 
-int PoderAn = 1;
+
 int VarWalk = 1;
 int orientacion;
- 
+
 int mapa[51][120] = {
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
@@ -75,10 +73,9 @@ int mapa[51][120] = {
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
     { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
- 
+
 };
- 
- 
+
 void createMap() {
     Console::SetWindowSize(120, 51);
     Console::CursorVisible = false;
@@ -92,77 +89,61 @@ void createMap() {
             cout << (char)219;
         }
     }
- 
-}
-void Pintar() {
-    Console::ForegroundColor = ConsoleColor::Black;
-    Console::BackgroundColor = ConsoleColor::Green;
+
 }
 
-void PintarAgua() {
+void Pintar(int x) {
+
     Console::ForegroundColor = ConsoleColor::Black;
-    Console::BackgroundColor = ConsoleColor::Blue;
+    if (x == 1) Console::BackgroundColor = ConsoleColor::Green;
+    else if (x == 2)Console::BackgroundColor = ConsoleColor::Blue;
 }
 
 struct Bala {
-    int x, y,or;
+    int x, y, or ;
     int dx, dy;
-    Bala(int _x,int _y, int _or) {
+    bool last = 1; //Para evitar que siga pintando una vez la bala desaparece
+    Bala(int _x, int _y, int _or) {
         this->x = _x;
         this->y = _y;
-        this->or = _or;
+        this-> or = _or;
     }
     Bala() {}
- 
-    void DibujaBala() {
- 
-        if (x + 1 != 120 && x - 1 != -1 && y + 1 != 40 && y - 1 != -1) {
-            Console::SetCursorPosition(x, y);
-            if (mapa[y][x] == 1) {
-                Console::ForegroundColor = ConsoleColor::Black;
-                Console::BackgroundColor = ConsoleColor::Green;
-            }
-            else if (mapa[y][x] == 2) {
-                Console::ForegroundColor = ConsoleColor::Black;
-                Console::BackgroundColor = ConsoleColor::Blue;
 
-            }
+    void DibujaBala() {
+
+        if (x + 1 != 120 && x - 1 != -1 && y + 1 != 51 && y - 1 != -1) {
+            Console::SetCursorPosition(x, y);
+            if (mapa[y][x] == 1) Pintar(1);
+            else if (mapa[y][x] == 2) Pintar(2);
             cout << " ";
             if (or == Norte)y--;
             else if (or == Sur)y++;
             else if (or == Este)x++;
             else if (or == Oeste)x--;
             Console::SetCursorPosition(x, y);
-            if (mapa[y][x] == 1) {
-                Console::ForegroundColor = ConsoleColor::Black;
-                Console::BackgroundColor = ConsoleColor::Green;
-            }
-            else if (mapa[y][x] == 2) {
-                Console::ForegroundColor = ConsoleColor::Black;
-                Console::BackgroundColor = ConsoleColor::Blue;
-            }
-            cout << (char)184;
+            if (mapa[y][x] == 1) Pintar(1);
+            else if (mapa[y][x] == 2) Pintar(2);
+            cout << (char)21;
         }
         else {
-            if (mapa[y][x] == 1) {
-                Console::ForegroundColor = ConsoleColor::Black;
-                Console::BackgroundColor = ConsoleColor::Green;
+            if (last) {//Para evitar que siga pintando una vez la bala desaparece
+                if (mapa[y][x] == 1) Pintar(1);
+                else if (mapa[y][x] == 2) Pintar(2);
+                Console::SetCursorPosition(x, y);
+                cout << " ";
+                last = 0;
             }
-            else if (mapa[y][x] == 2) {
-                Console::ForegroundColor = ConsoleColor::Black;
-                Console::BackgroundColor = ConsoleColor::Blue;
-            }
-            Console::SetCursorPosition(x, y);
-            cout << " ";
         }
     }
 };
- 
+
 struct Jugador {
     char cabeza, cuerpo, Bizquierdo, Bderecho, Patas;
     int vida, Jx, Jy;
     int Movimiento = 1;
- 
+    int dy = 1;
+
     Jugador(char cabeza, char cuerpo, char Bizquierdo, char Bderecho, char Patas, int vida, int Jx, int Jy) {
         this->cabeza = cabeza;
         this->cuerpo = cuerpo;
@@ -173,61 +154,58 @@ struct Jugador {
         this->Jy = Jy;
         this->vida = vida;
     }
- 
-    void Pintar() {
-        Console::ForegroundColor = ConsoleColor::Black;
-        Console::BackgroundColor = ConsoleColor::Green;
-    }
- 
+
+    Jugador() {}
+
     void DibujaJugador() {
         Console::SetCursorPosition(Jx, Jy);
-        Pintar();
+        Pintar(1);
         cout << (char)cabeza;
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx, Jy + 1);
         cout << (char)cuerpo;
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx - 1, Jy + 1);
         cout << (char)Bizquierdo; //Brazo izquierdo
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx + 1, Jy + 1);
         cout << (char)Bderecho; //Brazo derecho
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx, Jy + 2);
         cout << (char)Patas; //Piernas
     }
- 
+
     void BorraJugador() {
-        Pintar();
-        Console::SetCursorPosition(this->Jx, Jy);
+        Pintar(1);
+        Console::SetCursorPosition(Jx, Jy);
         cout << " ";
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx, Jy + 1);
         cout << " "; //Cuerpo
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx - 1, Jy + 1);
         cout << " "; //Brazo izquierdo
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx + 1, Jy + 1);
         cout << " ";; //Brazo derecho
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx, Jy + 2);
         cout << " ";; //Piernas
     }
     void DibujaBrazos() {
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx - 1, Jy + 1);
         cout << (char)Bizquierdo; //Brazo izquierdo
-        Pintar();
+        Pintar(1);
         Console::SetCursorPosition(Jx + 1, Jy + 1);
         cout << (char)Bderecho; //Brazo derecho
     }
- 
- 
- 
+
+
+
 };
- 
-void animacionDisparo(Jugador x, int izq1, int der1, int izq2, int der2, bool *camb) {
+
+void animacionDisparo(Jugador x, int izq1, int der1, int izq2, int der2, bool* camb) {
     if (*camb) {
         x.Bizquierdo = izq1;
         x.Bderecho = der1;
@@ -240,5 +218,5 @@ void animacionDisparo(Jugador x, int izq1, int der1, int izq2, int der2, bool *c
         x.DibujaBrazos();
         *camb = true;
     }
- 
+
 }

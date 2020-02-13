@@ -8,15 +8,27 @@ int main()
     bool camb = true; //Variable para la animacion del diparo
     bool CambioVida = true;
     bool Disparo = false;
-    int malos,BalaVar,numBalas = 0;
+    int malos,BalaVar,numBalas, temporizador = 0;
     int mainJx, mainJy; //coordenadas el jugador
-    mainJx = 40; mainJy = 1;
+    mainJx = 20; mainJy = 1;
     char tecla;
  
     Bala* BalasActuales = new Bala[100];
- 
-    Jugador* main = new Jugador(226, 178, 47, 92, 186, 6, mainJx, mainJy);
+    int vida = 10;
+
+    Jugador* main = new Jugador(226, 178, 47, 92, 186, vida, mainJx, mainJy);
     main->DibujaJugador();
+
+    Jugador* Malo1 = new Jugador(225, 206, 47, 92, 202, 4, 100, 4);
+    Malo1->DibujaJugador();
+
+    Jugador* Malo2 = new Jugador(225, 206, 47, 92, 202, 4, 100, 43);
+    Malo2->DibujaJugador();
+
+    Jugador* MalosActuales = new Jugador[100];
+
+    MalosActuales[0] = *Malo1;
+    MalosActuales[1] = *Malo2;
     while (1)
     {
         if (_kbhit())
@@ -102,7 +114,7 @@ int main()
  
         }
         if (CambioVida) {
-            main->Pintar();
+            Pintar(1);
             Console::SetCursorPosition(1, 2);
             for (int i = 0; i < main->vida; i++) {
                 cout << " ";
@@ -138,7 +150,33 @@ int main()
         for (int i = 0; i < numBalas; i++) {//For del recorrido de las balas
             BalasActuales[i].DibujaBala();
             //Revisar si la bala choca con algo
+            for (int bala = 0; bala < 2; bala++) {
+                if (BalasActuales[i].x == MalosActuales[bala].Jx && (BalasActuales[i].y == MalosActuales[bala].Jy || BalasActuales[i].y == (MalosActuales[bala].Jy + 1) || BalasActuales[i].y == (MalosActuales[bala].Jy + 2))) {
+                    MalosActuales[bala].cabeza = 32;
+                }
+            }
         }
+        if (temporizador == 2) {
+
+            for (int m = 0; m < 2; m++) {
+                MalosActuales[m].BorraJugador();
+
+                if (mapa[MalosActuales[m].Jy - 1][MalosActuales[m].Jx] != 1) {//Arriba de la cabeza del malo
+                    MalosActuales[m].dy *= -1;
+                }
+
+                if (mapa[MalosActuales[m].Jy + 3][MalosActuales[m].Jx] != 1) {//Debajo de la cabeza del malo
+                    MalosActuales[m].dy *= -1;
+                }
+
+                MalosActuales[m].Jy += MalosActuales[m].dy;
+
+                MalosActuales[m].DibujaJugador();
+            }
+            temporizador = 0;
+        }
+
+        temporizador++;
         _sleep(20);
     }
  
