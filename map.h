@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <iostream>
 #include <Windows.h>
+#include <ctime>
 
 #define DERECHA 77
 #define IZQUIERDA 75
@@ -169,7 +170,8 @@ struct Jugador {
         cout << (char)Bizquierdo; //Brazo izquierdo
         Pintar(1);
         Console::SetCursorPosition(Jx + 1, Jy + 1);
-        cout << (char)Bderecho; //Brazo derecho
+        //cout << (char)Bderecho; //Brazo derecho
+        cout << Jy;
         Pintar(1);
         Console::SetCursorPosition(Jx, Jy + 2);
         cout << (char)Patas; //Piernas
@@ -187,7 +189,7 @@ struct Jugador {
         cout << " "; //Brazo izquierdo
         Pintar(1);
         Console::SetCursorPosition(Jx + 1, Jy + 1);
-        cout << " ";; //Brazo derecho
+        cout << "      ";; //Brazo derecho
         Pintar(1);
         Console::SetCursorPosition(Jx, Jy + 2);
         cout << " ";; //Piernas
