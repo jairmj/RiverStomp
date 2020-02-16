@@ -37,7 +37,7 @@ int main()
 
 	for (int m = 0; m < cantEnemigos; m++) {//For que llena los enemigos en su arreglo
 
-		MalosActuales[m] = Jugador(225, 206, 47, 92, 202, 4, EnemigoPosX, EnemigoPosY[m]);
+		MalosActuales[m] = Jugador(225, 206, 47, 92, 202, 2, EnemigoPosX, EnemigoPosY[m]);
 
 	}
 
@@ -45,6 +45,7 @@ int main()
 	{
 		randomizador = rand() % 30;
 
+		//******************************************************************   Movimiento del jugador y disparo    **************************************************************
 		if (_kbhit())
 		{
 			tecla = _getch();
@@ -109,11 +110,13 @@ int main()
 					VarWalk = 0;
 				}
 				else {
-					main->Patas = 186;
-					VarWalk = 1;
+				main->Patas = 186;
+				VarWalk = 1;
 				}
 				main->DibujaJugador();
 			}
+
+			//Disparos
 			if (tecla == ESPACIO) {
 				switch (orientacion) {
 				case Norte: animacionDisparo(*main, 196, 196, 238, 238, &camb); break;
@@ -125,6 +128,9 @@ int main()
 			}//Disparo
 
 		}
+		// ***********************************************************************************************************************************************************
+
+		//******************************************************************   Cambios en la barra de vida    **************************************************************
 		if (CambioVida) {
 			if (main->vida == 0)Perder = true;
 			Console::SetCursorPosition(30, 0);
@@ -141,7 +147,9 @@ int main()
 
 			CambioVida = false;
 		}
+		// ***********************************************************************************************************************************************************
 
+		//******************************************************************   Creación de balas aliadas *************************************************************
 		if (Disparo) {
 			if (orientacion == Oeste) {
 				BalasActuales[BalaVar] = Bala(main->Jx - 2, main->Jy + 1, Oeste);
@@ -159,21 +167,34 @@ int main()
 			BalaVar++;
 			numBalas++;
 		}
+		// ***********************************************************************************************************************************************************
+
+		//// ******************************************************************   Movimiento de las balas    **********************************************************
 		for (int i = 0; i < numBalas; i++) {//For del recorrido de las balas
 			BalasActuales[i].DibujaBala();
-				
+
 			//Revisar si la bala choca con algo
 
-
-			for (int bala = 0; bala < cantEnemigos; bala++) {//Si choca con los enemigos
-				if (BalasActuales[i].x == MalosActuales[bala].Jx && (BalasActuales[i].y == MalosActuales[bala].Jy || BalasActuales[i].y == (MalosActuales[bala].Jy + 1) || BalasActuales[i].y == (MalosActuales[bala].Jy + 2))) {
-					MalosActuales[bala].cabeza = 32;
+			//Si choca con los enemigos
+			for (int bala = 0; bala < cantEnemigos; bala++) {
+				if (((BalasActuales[i].x == (MalosActuales[bala].Jx) && (BalasActuales[i].y == MalosActuales[bala].Jy || BalasActuales[i].y == (MalosActuales[bala].Jy + 1) || BalasActuales[i].y == (MalosActuales[bala].Jy + 2))) || (BalasActuales[i].x == (MalosActuales[bala].Jx + 2) && BalasActuales[i].y == MalosActuales[bala].Jy + 1)) && !MalosActuales[bala].muerto) {
+					Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
+					Pintar(1);
+					MalosActuales[bala].DibujaJugador();
+					(MalosActuales[bala].vida)--;
+					BalasActuales[i].y = 0;
+					BalasActuales[i].x = 20;
+					BalasActuales[i].parada = true;
+					if (MalosActuales[bala].vida == 0) {
+						MalosActuales[bala].muerto = true;
+						MalosActuales[bala].BorraJugador();
+					}
 				}
 
 			}
+
 			//Si choca con el main
-			
-			if ((BalasActuales[i].x == (main->Jx+1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) || BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1)) {
+			if ((BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) || BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1)) {
 				(main->vida)--;
 				CambioVida = true;
 				Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
@@ -182,57 +203,75 @@ int main()
 				BalasActuales[i].y = 0;
 				BalasActuales[i].x = 20;
 				BalasActuales[i].parada = true;
-				
+
 			}
 		}
-		if (temporizador == 4) {
+		// ***********************************************************************************************************************************************************
 
-			for (int m = 0; m < 2; m++) {
 
-				//Borra
-				MalosActuales[m].BorraJugador();
+		// ******************************************************************   Movimiento de los enemigos    **********************************************************
+		if (temporizador == 40) {
 
-				//	Mueve
-				if (mapa[MalosActuales[m].Jy - 1][MalosActuales[m].Jx] != 1) {
-					MalosActuales[m].dy *= -1;
+			for (int m = 0; m < cantEnemigos; m++) {
+				if(!(MalosActuales[m].muerto)){
+					//Borra
+					MalosActuales[m].BorraJugador();
+
+					//Mueve
+					bool derechaEnemigo = mapa[MalosActuales[m].Jy][MalosActuales[m].Jx + 1] == 1 && mapa[MalosActuales[m].Jy + 2][MalosActuales[m].Jx + 1] == 1 && mapa[MalosActuales[m].Jy + 1][MalosActuales[m].Jx + 2] == 1;
+					bool izquierdaEnemigo = mapa[MalosActuales[m].Jy][MalosActuales[m].Jx - 1] == 1 && mapa[MalosActuales[m].Jy + 2][MalosActuales[m].Jx - 1] == 1 && mapa[MalosActuales[m].Jy + 1][MalosActuales[m].Jx - 2] == 1;
+
+					bool arribaEnemigo = mapa[MalosActuales[m].Jy - 1][MalosActuales[m].Jx] == 1 && mapa[MalosActuales[m].Jy][MalosActuales[m].Jx + 1] == 1 && mapa[MalosActuales[m].Jy][MalosActuales[m].Jx -1] == 1;
+					bool abajoEnemigo = mapa[MalosActuales[m].Jy + 3][MalosActuales[m].Jx] == 1 && mapa[MalosActuales[m].Jy + 2][MalosActuales[m].Jx + 1] == 1 && mapa[MalosActuales[m].Jy + 2][MalosActuales[m].Jx - 1] == 1;
+
+					//Movimiento vertical
+					if (main->Jy > MalosActuales[m].Jy && abajoEnemigo) MalosActuales[m].Jy += 1;
+					else if (main->Jy < MalosActuales[m].Jy && arribaEnemigo)  MalosActuales[m].Jy += -1;
+
+					//Movimiento horizontal
+					else if (main->Jx > MalosActuales[m].Jx && derechaEnemigo) MalosActuales[m].Jx += 1;
+					else if (main->Jx < MalosActuales[m].Jx && izquierdaEnemigo)  MalosActuales[m].Jx += -1;
+
+
+
+
+					//Dibuja
+					MalosActuales[m].DibujaJugador();
 				}
-
-				if (mapa[MalosActuales[m].Jy + 3][MalosActuales[m].Jx] != 1) {
-					MalosActuales[m].dy *= -1;
-				}
-
-				MalosActuales[m].Jy += MalosActuales[m].dy;
-
-
-				//Dibuja
-				MalosActuales[m].DibujaJugador();
-
 
 
 			}
 			temporizador = 0;
 		}
-		if (randomizador == 22) {
+		// ***********************************************************************************************************************************************************
 
+		// ******************************************************************  Disparos de los enemigos    ***********************************************************
+		if (randomizador == 22 && !(MalosActuales[0].muerto)) {
 			BalasActuales[BalaVar] = Bala(MalosActuales[0].Jx - 2, MalosActuales[0].Jy, Oeste);
 			BalaVar++;
 			numBalas++;
+
 		}
-		if (randomizador == 23) {
+		if (randomizador == 23 && !(MalosActuales[1].muerto)) {
 
 			BalasActuales[BalaVar] = Bala(MalosActuales[1].Jx - 2, MalosActuales[1].Jy, Oeste);
 			BalaVar++;
 			numBalas++;
 		}
+		// ***********************************************************************************************************************************************************
+
 
 		temporizador++;
 		_sleep(20);
+
+		// ******************************************************************   Pantalla GAME OVER    ******************************************************************
 		if (Perder) {
 			system("cls");
 			Console::SetCursorPosition(40, 14);
 			cout << "GAME OVER";
 			break;
 		}
+		// **************************************************************************************************************************************************************
 	}
 	system("pause>null");
 	return 0;

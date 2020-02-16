@@ -117,22 +117,24 @@ struct Bala {
 
 	void DibujaBala() {
 		if (parada) {
-			//if (mapa[y][x] == 1) Pintar(1);
-			//else if (mapa[y][x] == 2) Pintar(2);
 			Console::SetCursorPosition(x, y);
 			Pintar(3);
-			//cout << " ";
 		}
 		else {
 			if (x + 1 != 120 && x - 1 != -1 && y + 1 != 51 && y - 1 != -1) {
+				//Borra
 				Console::SetCursorPosition(x, y);
 				if (mapa[y][x] == 1) Pintar(1);
 				else if (mapa[y][x] == 2) Pintar(2);
 				cout << " ";
+
+				//Mueve
 				if (or == Norte)y--;
 				else if (or == Sur)y++;
 				else if (or == Este)x++;
 				else if (or == Oeste)x--;
+
+				//Dibuja
 				Console::SetCursorPosition(x, y);
 				if (mapa[y][x] == 1) Pintar(1);
 				else if (mapa[y][x] == 2) Pintar(2);
@@ -156,6 +158,7 @@ struct Jugador {
 	int vida, Jx, Jy;
 	int Movimiento = 1;
 	int dy = 1;
+	bool muerto = false;
 
 	Jugador(char cabeza, char cuerpo, char Bizquierdo, char Bderecho, char Patas, int vida, int Jx, int Jy) {
 		this->cabeza = cabeza;
@@ -201,7 +204,7 @@ struct Jugador {
 		cout << " "; //Brazo izquierdo
 		Pintar(1);
 		Console::SetCursorPosition(Jx + 1, Jy + 1);
-		cout << "      ";; //Brazo derecho
+		cout << " ";; //Brazo derecho
 		Pintar(1);
 		Console::SetCursorPosition(Jx, Jy + 2);
 		cout << " ";; //Piernas
