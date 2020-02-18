@@ -422,10 +422,10 @@ int main()
 			}
 
 			//Si choca con el main
-			bool ChoqueDerecha = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
-			bool ChoqueIzquierda = (BalasActuales[i].x == (main->Jx - 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy - 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
-			bool ChoqueInferior = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
-			bool ChoqueSuperior = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueDerecha = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueIzquierda = (BalasActuales[i].x == (main->Jx - 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx - 2) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueInferior = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy+3 || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == main->Jy + 2);
+			bool ChoqueSuperior = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy -1 || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy))) || (BalasActuales[i].x == (main->Jx -1) && BalasActuales[i].y == main->Jy);
 			if (ChoqueDerecha || ChoqueInferior || ChoqueSuperior || ChoqueIzquierda) {
 			
 				CambioVida = true;
