@@ -1,6 +1,7 @@
 ﻿
-#include "stdafx.h"
+#include "pch.h"
 #include "map.h"
+#include <iostream>
 
 /*
 TODO:
@@ -18,6 +19,13 @@ int main()
 	SetConsoleOutputCP(850);
 	srand(time(NULL));
 	createMap();
+
+	//Variables valor agregado
+	bool purificadorAgua = false;
+	bool armaComprada = false;
+	int contaminacionPosX, contaminacionPosY, randomizadorContaminacion;
+	bool todosMuertos;
+
 
 	int posSalidaBalaX = 0, posSalidaBalaY = 0;
 	int orientacionBalaEnemiga;
@@ -46,15 +54,23 @@ int main()
 	temporizadorBonificacion = DibujaBonProyectil = 0;
 	Bonificacion bon;//Se crea la única bonificación que irá moviéndose por el mapa para dar puntos extra.
 	bool intemediarioBonProy = false;//Dos booleanos para hacer que no se borre cuando un proyectil lo atraviesa
-	bool variabl2 = true; 
+	bool variabl2 = true;
 
-	
+	//Herramientas para las monedas
+	int temporizadorMoneda, DibujaMonedaProyectil;
+	bool showMoneda = true;
+	temporizadorMoneda = DibujaMonedaProyectil = 0;
+	Moneda coin;//Se crea la única bonificación que irá moviéndose por el mapa para dar puntos extra.
+	bool intemediarioMonedaProy = false;//Dos booleanos para hacer que no se borre cuando un proyectil lo atraviesa
+	bool variabl1 = true;
+
+
 	//Variables de parametros del jugador
 	int vida = 10;
 	int mainJx, mainJy; //coordenadas donde empezará el jugador
 	mainJx = 20; mainJy = 1;
-
-	int Puntos = 100; ActualizaPuntos(0, &Puntos);
+	int Puntos = 100; ActualizaPuntos(100, &Puntos);
+	int Dinero = 100; ActualizaDinero(100, &Dinero);
 
 
 	Bala* BalasActuales = new Bala[10000];
@@ -84,7 +100,7 @@ int main()
 	timerMessage = 0;
 	bool count = false;
 	bool count2 = true;
-	
+
 
 	short ronda = 0; //Variable para contorlar las rondas
 
@@ -96,26 +112,44 @@ int main()
 	EnemigosRonda[3] = 24;
 
 	int kills = 0; //Muertes que ha hecho el jugador
-
+	int Contaminacion = 0;
 	while (1)
 	{
+		//Compruebo si hay 4 en la matriz mapa (solo si ha llegado a la quinta ronda, sino porlas)
+				//Compruebo si hay 4 en la matriz mapa (solo si ha llegado a la cuarta ronda, sino porlas)
+		if (ronda == 4) {
+			Contaminacion = 0;
+			for (int f = 0; f < 51; f++)
+			{
+				for (int c = 0; c < 120; c++)
+				{
+					if (mapa[f][c] == 4) Contaminacion++;
+				}
+			}
+		}
+		 
 
 		//Condiciones para ganar: que ronda sea 4 y que no haya mierda en el rio.
+		if (ronda == 4 && Contaminacion == 0) {
+			GAMEOVER();
+		}
 
+
+		//Condiciones para ganar: que ronda sea 4 y que no haya mierda en el rio.
+		
 
 		//Generacion de enemigos
 		Console::SetCursorPosition(21, 0);
 		Pintar(3);
 		Console::ForegroundColor = ConsoleColor::White;
-		cout << "Ronda: " << ronda + 1 << "  Kills: "<<kills;
+		cout << "Ronda: " << ronda + 1 << "  Kills: " << kills;
 		if (kills == EnemigosRonda[ronda]) {
-			//cantEnemigos = 0; al finalizar la primera ronda es 3
 			ronda++;
 		}
 
 		generacionMalo = rand() % 150;
 
-		if (generacionMalo == 20 && cantEnemigos < EnemigosRonda[ronda]) {
+		if ((generacionMalo == 20 && cantEnemigos < EnemigosRonda[ronda]) && ronda < 4) {
 			while (1) {//Genero posiciones aleatorias dentro de los lugares permitidos
 				EnemigoPosY = rand() % 48 + 1;
 				EnemigoPosX = rand() % 118 + 1;
@@ -252,12 +286,25 @@ int main()
 				}
 				main->DibujaJugador();
 			}
+			else if (tecla == 99 && !armaComprada) {
+				
+				if (Dinero > 99) {
+				ActualizaDinero(-100, &Dinero);
+				armaComprada = true;
+				}
+			}
+			//cout << tecla;
 
 			//******************************************************************   Colisiones personaje principal    **************************************************************
 			//Con las bonificaciones
 			if (bonificacionPosX == main->Jx && bonificacionPosY == main->Jy || bonificacionPosX == main->Jx && bonificacionPosY == main->Jy + 2 || bonificacionPosX == main->Jx + 1 && bonificacionPosY == main->Jy + 1 || bonificacionPosX == main->Jx - 1 && bonificacionPosY == main->Jy + 1) {
 				ActualizaPuntos(20, &Puntos);
 				showBonificacion = true;
+			}
+			//Con las Monedas
+			if (coin.x == main->Jx && coin.y == main->Jy || coin.x == main->Jx && coin.y == main->Jy + 2 || coin.x == main->Jx + 1 && coin.y == main->Jy + 1 || coin.x == main->Jx - 1 && coin.y == main->Jy + 1) {
+				ActualizaDinero(20, &Dinero);
+				showMoneda = true;
 			}
 			//Con los enemigos
 			for (int m = 0; m < cantEnemigos; m++) {
@@ -270,7 +317,7 @@ int main()
 				//											Sus pies en mi cabeza										
 				bool abajoEnemigoCol = MalosActuales[m].Jy + 2 == main->Jy && MalosActuales[m].Jx == main->Jx;
 
-				if (derechaEnemigoCol || izquierdaEnemigoCol || arribaEnemigoCol || abajoEnemigoCol) {
+				if ((derechaEnemigoCol || izquierdaEnemigoCol || arribaEnemigoCol || abajoEnemigoCol) && !(MalosActuales[m].muerto)) {
 					CambioVida = true;
 					temporizadorInmunidad = sec + 3; //3 Segundos de inmunidad cuando te chocas con un enemigo
 					Inmunidad = true;
@@ -279,14 +326,15 @@ int main()
 
 
 			//Disparos
-			if (tecla == ESPACIO) {
+			if (tecla == ESPACIO || tecla == 101) {
 				switch (orientacion) {
 				case Norte: animacionDisparo(*main, 196, 196, 238, 238, &camb); break;
 				case Este: animacionDisparo(*main, 32, 185, 32, 205, &camb); break;
 				case Sur: animacionDisparo(*main, 179, 179, 124, 124, &camb); break;
 				case Oeste: animacionDisparo(*main, 204, 32, 205, 32, &camb);
 				}
-				Disparo = true;
+				if (tecla == ESPACIO)Disparo = true;
+				else if (tecla == 101 && armaComprada) purificadorAgua = true;
 			}//Disparo
 
 
@@ -350,18 +398,37 @@ int main()
 		//******************************************************************   Creación de balas aliadas *************************************************************
 		if (Disparo) {
 			if (orientacion == Oeste) {
-				BalasActuales[BalaVar] = Bala(main->Jx - 2, main->Jy + 1, Oeste, true);
+				BalasActuales[BalaVar] = Bala(main->Jx - 2, main->Jy + 1, Oeste, true, false);
 			}
 			else if (orientacion == Este) {
-				BalasActuales[BalaVar] = Bala(main->Jx + 2, main->Jy + 1, Este, true);
+				BalasActuales[BalaVar] = Bala(main->Jx + 2, main->Jy + 1, Este, true, false);
 			}
 			else if (orientacion == Norte) {
-				BalasActuales[BalaVar] = Bala(main->Jx, main->Jy - 1, Norte, true);
+				BalasActuales[BalaVar] = Bala(main->Jx, main->Jy - 1, Norte, true, false);
 			}
 			else if (orientacion == Sur) {
-				BalasActuales[BalaVar] = Bala(main->Jx, main->Jy + 3, Sur, true);
+				BalasActuales[BalaVar] = Bala(main->Jx, main->Jy + 3, Sur, true, false);
 			}
 			Disparo = false;
+			BalaVar++;
+			numBalas++;
+		}
+		// ***********************************************************************************************************************************************************
+		//******************************************************************   Creación de balas purificadoras *************************************************************
+		if (purificadorAgua) {
+			if (orientacion == Oeste) {
+				BalasActuales[BalaVar] = Bala(main->Jx - 2, main->Jy + 1, Oeste, true, true);
+			}
+			else if (orientacion == Este) {
+				BalasActuales[BalaVar] = Bala(main->Jx + 2, main->Jy + 1, Este, true, true);
+			}
+			else if (orientacion == Norte) {
+				BalasActuales[BalaVar] = Bala(main->Jx, main->Jy - 1, Norte, true, true);
+			}
+			else if (orientacion == Sur) {
+				BalasActuales[BalaVar] = Bala(main->Jx, main->Jy + 3, Sur, true, true);
+			}
+			purificadorAgua = false;
 			BalaVar++;
 			numBalas++;
 		}
@@ -384,11 +451,11 @@ int main()
 					bool abajoEnemigo = mapa[MalosActuales[m].Jy + 3][MalosActuales[m].Jx] == 1 && mapa[MalosActuales[m].Jy + 2][MalosActuales[m].Jx + 1] == 1 && mapa[MalosActuales[m].Jy + 2][MalosActuales[m].Jx - 1] == 1;
 
 					//Movimiento vertical
-					if ((main->Jy > MalosActuales[m].Jy && abajoEnemigo) && !(main->invisibilidad)) MalosActuales[m].Jy += 1;
+					if ((main->Jy > MalosActuales[m].Jy&& abajoEnemigo) && !(main->invisibilidad)) MalosActuales[m].Jy += 1;
 					else if (main->Jy < MalosActuales[m].Jy && arribaEnemigo && !(main->invisibilidad))  MalosActuales[m].Jy += -1;
 
 					//Movimiento horizontal
-					else if (main->Jx > MalosActuales[m].Jx && derechaEnemigo && !(main->invisibilidad)) MalosActuales[m].Jx += 1;
+					else if (main->Jx > MalosActuales[m].Jx&& derechaEnemigo && !(main->invisibilidad)) MalosActuales[m].Jx += 1;
 					else if (main->Jx < MalosActuales[m].Jx && izquierdaEnemigo && !(main->invisibilidad))  MalosActuales[m].Jx += -1;
 
 
@@ -403,9 +470,9 @@ int main()
 					//											Su mano derecha en mi cabeza											Su mano derecha en mi mano izquieda															Su mano derecha en mis pies
 					bool derechaEnemigoCol = MalosActuales[m].Jy + 1 == main->Jy && MalosActuales[m].Jx + 1 == main->Jx || MalosActuales[m].Jy + 1 == main->Jy + 1 && MalosActuales[m].Jx + 1 == main->Jx - 1 || MalosActuales[m].Jy + 1 == main->Jy + 2 && MalosActuales[m].Jx + 1 == main->Jx;
 					//											Su mano izquierda en mi cabeza											Su mano izquierda en mi mano derecha															Su mano izquierda en mis pies
-					bool izquierdaEnemigoCol = MalosActuales[m].Jy + 1 == main->Jy && MalosActuales[m].Jx -1 == main->Jx || MalosActuales[m].Jy + 1 == main->Jy + 1 && MalosActuales[m].Jx - 1 == main->Jx + 1 || MalosActuales[m].Jy + 1 == main->Jy + 2 && MalosActuales[m].Jx - 1 == main->Jx;
+					bool izquierdaEnemigoCol = MalosActuales[m].Jy + 1 == main->Jy && MalosActuales[m].Jx - 1 == main->Jx || MalosActuales[m].Jy + 1 == main->Jy + 1 && MalosActuales[m].Jx - 1 == main->Jx + 1 || MalosActuales[m].Jy + 1 == main->Jy + 2 && MalosActuales[m].Jx - 1 == main->Jx;
 					//											Su cabeza en mis pies											
-					bool arribaEnemigoCol = MalosActuales[m].Jy == main->Jy + 2  && MalosActuales[m].Jx == main->Jx;
+					bool arribaEnemigoCol = MalosActuales[m].Jy == main->Jy + 2 && MalosActuales[m].Jx == main->Jx;
 					//											Sus pies en mi cabeza										
 					bool abajoEnemigoCol = MalosActuales[m].Jy + 2 == main->Jy && MalosActuales[m].Jx == main->Jx;
 
@@ -423,7 +490,7 @@ int main()
 		}
 		// ***********************************************************************************************************************************************************
 
-		// ******************************************************************  Disparos de los enemigos    ***********************************************************
+		// ******************************************************************  Cracion de balas enemigas ***********************************************************
 		randomizador = rand() % 40; //Para decidir si dispara o no
 		if (randomizador == 11 && avanzado) {
 			for (int dis = 0; dis < cantEnemigos; dis++) {
@@ -462,7 +529,7 @@ int main()
 						case Este:  posSalidaBalaX = 2; posSalidaBalaY = 1; break;
 						case Oeste:  posSalidaBalaX = -2; posSalidaBalaY = 1; break;
 						}
-						BalasActuales[BalaVar] = Bala(MalosActuales[randomizador2].Jx + posSalidaBalaX, MalosActuales[randomizador2].Jy + posSalidaBalaY, orientacionBalaEnemiga, false);
+						BalasActuales[BalaVar] = Bala(MalosActuales[randomizador2].Jx + posSalidaBalaX, MalosActuales[randomizador2].Jy + posSalidaBalaY, orientacionBalaEnemiga, false, false);
 						BalaVar++;
 						numBalas++;
 					}
@@ -480,6 +547,7 @@ int main()
 				Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
 				if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 1) Pintar(1);
 				else if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 2) Pintar(2);
+				else if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 4) Pintar(4);
 				cout << " ";
 
 				//Mueve
@@ -541,6 +609,19 @@ int main()
 			//Si choca con una bonificacion
 
 			if (BalasActuales[i].x == bonificacionPosX && BalasActuales[i].y == bonificacionPosY) intemediarioBonProy = true;
+
+			//Si choca con una Moneda
+
+			if (BalasActuales[i].x == coin.x && BalasActuales[i].y ==coin.y) intemediarioMonedaProy = true;
+
+			//Si la purificadora choca con la contaminacion
+
+			if (BalasActuales[i].purificadora && (mapa[BalasActuales[i].y][BalasActuales[i].x] == 4)) {
+				Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
+				Console::BackgroundColor = ConsoleColor::Blue;
+				cout << " ";
+				mapa[BalasActuales[i].y][BalasActuales[i].x] = 2;
+			}
 		}
 		// ***********************************************************************************************************************************************************
 
@@ -567,6 +648,57 @@ int main()
 			DibujaBonProyectil = 0;
 		}
 		// ***********************************************************************************************************************************************************
+
+				//// ******************************************************************   Monedas   **********************************************************
+		//Aparicion
+		if (showMoneda) {
+			while (1) {
+
+				coin.x = rand() % 120;
+				coin.y = rand() % 51;
+				if (mapa[coin.y][coin.x] == 1)break;
+
+			}
+			coin.dibujaMoneda();
+			showMoneda = false;
+		}
+
+		//Que no se borre si le cae una bala
+		if (intemediarioMonedaProy) DibujaMonedaProyectil++;
+		if (DibujaMonedaProyectil == 2) {
+			coin.dibujaMoneda();
+			DibujaMonedaProyectil= 0;
+		}
+		// ***********************************************************************************************************************************************************
+		// ******************************************************************   Contaminación del agua    ******************************************************************
+		//Compruebo si hay enemigos vivos
+		
+		for (int malos = 0; malos < cantEnemigos; malos++) {
+			if (malos == 0) todosMuertos = MalosActuales[malos].muerto;//Si el primero está muerto adqquiere 1, de lo contrario 0
+			else {
+				todosMuertos *= MalosActuales[malos].muerto; //Voy multiplicando el resultado del anterior con el estado del sigueinte, si todos están muertos da 1, si hay 1 solo vivo da 0
+			}
+		}
+		
+		randomizadorContaminacion = rand() % 100;
+		if (!todosMuertos && randomizadorContaminacion == 23) {//Entra cuando hay al menos 1 vivo
+			while (1) {
+
+				contaminacionPosX = rand() % 120;
+				contaminacionPosY = rand() % 51;
+				if (mapa[contaminacionPosY][contaminacionPosX] == 2)break;
+
+			}
+			mapa[contaminacionPosY][contaminacionPosX] = 4;
+			Console::SetCursorPosition(contaminacionPosX, contaminacionPosY);
+			Console::BackgroundColor = ConsoleColor::DarkBlue;
+			cout << " ";
+		}
+
+		// **************************************************************************************************************************************************************
+
+
+
 
 		temporizador++;
 		temporizadorBonificacion++;

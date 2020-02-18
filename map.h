@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include <conio.h>
 #include <iostream>
 #include <Windows.h>
@@ -170,6 +170,7 @@ void Pintar(int x) {
 	if (x == 1) Console::BackgroundColor = ConsoleColor::Green;
 	else if (x == 2)Console::BackgroundColor = ConsoleColor::Blue;
 	else if (x == 3)Console::BackgroundColor = ConsoleColor::Black;
+	else if (x == 4)Console::BackgroundColor = ConsoleColor::DarkBlue;
 }
 
 
@@ -183,19 +184,30 @@ void ActualizaPuntos(int puntosExtra, int* Puntos) {
 	cout << "Puntos: " << *Puntos;
 }
 
+void ActualizaDinero(int monedasExtra, int* Monedas) {
+	Pintar(3); Console::ForegroundColor = ConsoleColor::White;
+	*Monedas += monedasExtra;
+	Console::SetCursorPosition(90, 0);
+	cout << "    ";
+	Console::SetCursorPosition(90, 0);
+	cout << "$ " << *Monedas;
+}
+
 struct Bala {
 	int x, y, or ;
 	int dx, dy;
 	bool parada = false;
 	bool last = 1; //Para evitar que siga pintando una vez la bala desaparece
-	bool aliado;
-	Bala(int _x, int _y, int _or, bool _aliado) {
+	bool aliado, purificadora;
+	Bala(int _x, int _y, int _or, bool _aliado, bool _purificadora) {
 		this->x = _x;
 		this->y = _y;
 		this-> or = _or;
 		this->aliado = _aliado;
+		this->purificadora = _purificadora;
 
 	}
+
 
 	Bala() {}
 
@@ -217,8 +229,10 @@ struct Bala {
 				Console::SetCursorPosition(x, y);
 				if (mapa[y][x] == 1) Pintar(1);
 				else if (mapa[y][x] == 2) Pintar(2);
-				else Pintar(3);
-				cout << (char)207;
+				else if (mapa[y][x] == 2) Pintar(3);
+				else if (mapa[y][x] == 4)Pintar(4);
+				if(purificadora) cout << (char)219;
+				else cout << (char)207;
 			}
 			else {
 				if (last) {//Para evitar que siga pintando una vez la bala desaparece
@@ -323,6 +337,18 @@ struct Bonificacion {
 		cout << (char)244;
 	}
 };
+
+struct Moneda {
+	int x, y;
+	bool activado = false;
+	void dibujaMoneda() {
+		Console::SetCursorPosition(x, y);
+		Pintar(1);
+		Console::ForegroundColor = ConsoleColor::Black;
+		cout << (char)36;
+	}
+};
+
 
 
 void animacionDisparo(Personaje x, int izq1, int der1, int izq2, int der2, bool* camb) {
