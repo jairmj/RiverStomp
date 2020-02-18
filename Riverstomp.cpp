@@ -8,7 +8,6 @@ TODO:
 
 5- Efectos de sonido
 8- Pantallas de inicio, final e instrucciones
-10- Valor agregado
 */
 
 using namespace System;
@@ -17,8 +16,12 @@ using namespace chrono;
 int main()
 {
 	SetConsoleOutputCP(850);
+	int vida = PantallaInicio();
+	pantallaInstrucciones();
 	srand(time(NULL));
 	createMap();
+
+
 
 	//Variables valor agregado
 	bool purificadorAgua = false;
@@ -30,7 +33,7 @@ int main()
 	int posSalidaBalaX = 0, posSalidaBalaY = 0;
 	int orientacionBalaEnemiga;
 
-	bool avanzado = false;
+	bool avanzado = true;
 
 	//********************************  Valoriables booleanas para entrar en apartados del while principal    *********************************
 
@@ -66,17 +69,17 @@ int main()
 
 
 	//Variables de parametros del jugador
-	int vida = 10;
+
 	int mainJx, mainJy; //coordenadas donde empezará el jugador
 	mainJx = 20; mainJy = 1;
 	int Puntos = 100; ActualizaPuntos(100, &Puntos);
-	int Dinero = 100; ActualizaDinero(100, &Dinero);
+	int Dinero = 0; ActualizaDinero(0, &Dinero);
 
 
 	Bala* BalasActuales = new Bala[10000];
 
 	//Creaci�n del jugador principal
-	Personaje* main = new Personaje(226, 178, 47, 92, 186, vida, mainJx, mainJy);
+	Personaje* main = new Personaje(226, 178, 47, 92, 186, vida, mainJx, mainJy, 0);
 	main->DibujaJugador();
 	short temporizadorInmunidad = 0;
 
@@ -84,9 +87,10 @@ int main()
 
 
 
-	int generacionMalo;
+	int generacionMalo, enemigoInvisible, timerInvisiblidadAlfa;
 	int EnemigoPosX, EnemigoPosY;
 	int cantEnemigos = 0;
+	bool generarAlfa = true;
 
 	Personaje* MalosActuales = new Personaje[100]; //Arreglo que me permitirá mover a los enemigos por el mapa con un for que lo recorra más adelante
 
@@ -131,6 +135,7 @@ int main()
 
 		//Condiciones para ganar: que ronda sea 4 y que no haya mierda en el rio.
 		if (ronda == 4 && Contaminacion == 0) {
+			//NivelMapa++;
 			GAMEOVER();
 		}
 
@@ -140,29 +145,67 @@ int main()
 
 		//Generacion de enemigos
 		Console::SetCursorPosition(21, 0);
-		Pintar(3);
+		Pintar(3,0);
 		Console::ForegroundColor = ConsoleColor::White;
 		cout << "Ronda: " << ronda + 1 << "  Kills: " << kills;
 		if (kills == EnemigosRonda[ronda]) {
 			ronda++;
+			generarAlfa = true;
 		}
 
 		generacionMalo = rand() % 150;
 
+		//Si entra genera un enemigo (genera un alfa por ronda)
 		if ((generacionMalo == 20 && cantEnemigos < EnemigosRonda[ronda]) && ronda < 4) {
 			while (1) {//Genero posiciones aleatorias dentro de los lugares permitidos
 				EnemigoPosY = rand() % 48 + 1;
 				EnemigoPosX = rand() % 118 + 1;
 				if (mapa[EnemigoPosY][EnemigoPosX] == 1)break;
 			}
+			if (generarAlfa) {
+				MalosActuales[cantEnemigos] = Personaje(155, 206, 47, 92, 202, 5, EnemigoPosX, EnemigoPosY, 2);
+				MalosActuales[cantEnemigos].DibujaJugador();
+				generarAlfa = false;
+				cantEnemigos++;
+			}
+			else {
+				MalosActuales[cantEnemigos] = Personaje(225, 206, 47, 92, 202, 2, EnemigoPosX, EnemigoPosY, 1);
+				MalosActuales[cantEnemigos].DibujaJugador();
+				cantEnemigos++;
+			}
 
-			MalosActuales[cantEnemigos] = Personaje(225, 206, 47, 92, 202, 2, EnemigoPosX, EnemigoPosY);
-			MalosActuales[cantEnemigos].DibujaJugador();
 
-			cantEnemigos++;
-			generacionMalo = 0;
+			
 		}
 
+		//Si entra cambia el color de los enemigos de tipo beta
+		if (generacionMalo == 3) {
+			for (int a = 0; a < cantEnemigos; a++) {
+				if (!MalosActuales[a].muerto && MalosActuales[a].tipo == 1) {
+					int randomizador4 = rand() % 3 + 1;
+					MalosActuales[a].color = randomizador4;
+				}
+			}
+		}
+
+		//Si entra vuelve al alfa invisible
+		if (generacionMalo == 1) {
+			for (int a = 0; a < cantEnemigos; a++) {
+				if (!MalosActuales[a].muerto && MalosActuales[a].tipo == 2) {
+					if(!MalosActuales[a].invisibilidad){
+						enemigoInvisible = a;
+						MalosActuales[a].invisibilidad = true;
+						MalosActuales[a].BorraJugador();
+						timerInvisiblidadAlfa = sec + 5;
+					}
+				}
+			}
+		}
+		//Para quitarle la invisibilidad luego de 5 segundos
+		if (timerInvisiblidadAlfa == sec) {
+			MalosActuales[enemigoInvisible].invisibilidad = false;
+			MalosActuales[enemigoInvisible].DibujaJugador();
+		}
 
 		//Timer
 		sec = duration_cast<seconds>(system_clock::now() - start).count();
@@ -198,7 +241,7 @@ int main()
 
 			if (sec == timerInv) {
 				Console::SetCursorPosition(41, 0);
-				Pintar(3);
+				Pintar(3, 0);
 				Console::ForegroundColor = ConsoleColor::White;
 				cout << "                        ";
 				Console::SetCursorPosition(67, 0);
@@ -343,11 +386,11 @@ int main()
 				if (Puntos >= 50) {
 					ActualizaPuntos(-50, &Puntos);
 					Console::SetCursorPosition(41, 0);
-					Pintar(3);
+					Pintar(3,0);
 					Console::ForegroundColor = ConsoleColor::White;
 					cout << "                                                                    ";
 					Console::SetCursorPosition(41, 0);
-					Pintar(3);
+					Pintar(3,0);
 					Console::ForegroundColor = ConsoleColor::White;
 					cout << "*Invisibilidad activada*";
 					ActualizaPuntos(0, &Puntos);
@@ -359,7 +402,7 @@ int main()
 				}
 				else {
 					Console::SetCursorPosition(41, 0);
-					Pintar(3);
+					Pintar(3,0);
 					Console::ForegroundColor = ConsoleColor::White;
 					cout << "Necesitas m" << (char)160 << "s puntos para activar la invisibilidad!";
 					timerMessage = sec + 4;//Para borrar el mensaje de arriba luego de 4 segundos, cuando timver message y sec sean iguales es que han pasado.
@@ -381,12 +424,12 @@ int main()
 			}
 			Console::SetCursorPosition(1, 0);
 			for (int i = 0; i < vida; i++) {
-				Pintar(3);
+				Pintar(3,0);
 				cout << " ";
 			}
 			Console::SetCursorPosition(1, 0);
 			for (int i = 0; i < main->vida; i++) {
-				Pintar(3);
+				Pintar(3,0);
 				Console::ForegroundColor = ConsoleColor::Red;
 				cout << (char)254;
 			}
@@ -545,9 +588,9 @@ int main()
 			if (!(BalasActuales[i].parada)) {
 				//Borra
 				Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
-				if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 1) Pintar(1);
-				else if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 2) Pintar(2);
-				else if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 4) Pintar(4);
+				if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 1) Pintar(1,0);
+				else if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 2) Pintar(2,0);
+				else if (mapa[BalasActuales[i].y][BalasActuales[i].x] == 4) Pintar(4,0);
 				cout << " ";
 
 				//Mueve
@@ -566,9 +609,10 @@ int main()
 
 			//Si choca con los enemigos
 			for (int bala = 0; bala < cantEnemigos; bala++) {
-				if (((BalasActuales[i].x == (MalosActuales[bala].Jx) && (BalasActuales[i].y == MalosActuales[bala].Jy || BalasActuales[i].y == (MalosActuales[bala].Jy + 1) || BalasActuales[i].y == (MalosActuales[bala].Jy + 2))) || (BalasActuales[i].x == (MalosActuales[bala].Jx + 2) && BalasActuales[i].y == MalosActuales[bala].Jy + 1)) && !MalosActuales[bala].muerto && BalasActuales[i].aliado) {
+				//										Si le doy en la cabeza																								Si le doy en el brazo izquierdo												      	Si le doy en brazo derecho																						Si le doy en los pies				
+				if (( (BalasActuales[i].x == MalosActuales[bala].Jx && BalasActuales[i].y == MalosActuales[bala].Jy) || (BalasActuales[i].x == MalosActuales[bala].Jx - 1 && BalasActuales[i].y == MalosActuales[bala].Jy + 1) || (BalasActuales[i].x == MalosActuales[bala].Jx + 1 && BalasActuales[i].y == MalosActuales[bala].Jy + 1) || (BalasActuales[i].x == MalosActuales[bala].Jx && BalasActuales[i].y == MalosActuales[bala].Jy + 2) ) && !MalosActuales[bala].muerto && BalasActuales[i].aliado) {
 					Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
-					Pintar(1);
+					Pintar(1,0);
 					MalosActuales[bala].DibujaJugador();
 					(MalosActuales[bala].vida)--;
 					BalasActuales[i].y = 0;
@@ -590,19 +634,20 @@ int main()
 			}
 
 			//Si choca con el main
-			bool ChoqueDerecha = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
-			bool ChoqueIzquierda = (BalasActuales[i].x == (main->Jx - 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx - 2) && BalasActuales[i].y == main->Jy + 1);
-			bool ChoqueInferior = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy + 3 || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == main->Jy + 2);
-			bool ChoqueSuperior = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy - 1 || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy))) || (BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == main->Jy);
+			bool ChoqueDerecha = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy + 1 || BalasActuales[i].x == (main->Jx) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx) && BalasActuales[i].y == main->Jy);
+			bool ChoqueIzquierda = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy || BalasActuales[i].x == (main->Jx) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueInferior = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy + 2 || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy + 1))) || (BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueSuperior = (BalasActuales[i].x == (main->Jx) && (BalasActuales[i].y == main->Jy || BalasActuales[i].x == (main->Jx + 1) && BalasActuales[i].y == (main->Jy + 1))) || (BalasActuales[i].x == (main->Jx - 1) && BalasActuales[i].y == main->Jy +1);
 			if (ChoqueDerecha || ChoqueInferior || ChoqueSuperior || ChoqueIzquierda) {
 
 				CambioVida = true;
 				Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
-				Pintar(1);
+				Pintar(1,0);
 				cout << " ";
 				BalasActuales[i].y = 0;
 				BalasActuales[i].x = 20;
 				BalasActuales[i].parada = true;
+				main->DibujaJugador();
 
 			}
 
@@ -684,7 +729,7 @@ int main()
 		if (!todosMuertos && randomizadorContaminacion == 23) {//Entra cuando hay al menos 1 vivo
 			while (1) {
 
-				contaminacionPosX = rand() % 120;
+				contaminacionPosX = rand() % 118 + 1;
 				contaminacionPosY = rand() % 51;
 				if (mapa[contaminacionPosY][contaminacionPosX] == 2)break;
 
@@ -710,9 +755,6 @@ int main()
 			break;
 		}
 		// **************************************************************************************************************************************************************
-
-		//Console::SetCursorPosition(16, 0);
-		//cout << temporizador;
 
 	}
 	system("pause>null");
