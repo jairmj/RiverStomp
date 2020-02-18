@@ -422,7 +422,11 @@ int main()
 			}
 
 			//Si choca con el main
-			if ((BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) || BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1)) {
+			bool ChoqueDerecha = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueIzquierda = (BalasActuales[i].x == (main->Jx - 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy - 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueInferior = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
+			bool ChoqueSuperior = (BalasActuales[i].x == (main->Jx + 1) && (BalasActuales[i].y == main->Jy || BalasActuales[i].y == (main->Jy + 1) && BalasActuales[i].y == (main->Jy + 2))) || (BalasActuales[i].x == (main->Jx + 2) && BalasActuales[i].y == main->Jy + 1);
+			if (ChoqueDerecha || ChoqueInferior || ChoqueSuperior || ChoqueIzquierda) {
 			
 				CambioVida = true;
 				Console::SetCursorPosition(BalasActuales[i].x, BalasActuales[i].y);
