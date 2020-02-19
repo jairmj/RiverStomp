@@ -19,17 +19,18 @@ bool IniciarJuego(int mapa[51][120],bool avanzado, int vida, int mapaActual);
 int main()
 {
 	SetConsoleOutputCP(850);
+	Console::Title = "Riverstomp";
 
 	int vida = 0;
 	bool avanzado = false;
 	PantallaInicio(&vida, &avanzado);
 	pantallaInstrucciones();
-	bool win = IniciarJuego(mapaa,avanzado, vida, 1);
+	bool win = IniciarJuego(mapaa2,avanzado, vida, 1);
 	if (win) {
-		win = IniciarJuego(mapaa2, avanzado, vida,2);
+		win = IniciarJuego(mapaa, avanzado, vida,2);
 	}
 	if (win) {
-		//Ganaste!
+		YOUWIN();
 	}
 	system("pause>null");
 	return 0;
@@ -45,10 +46,10 @@ bool IniciarJuego(int mapa[51][120], bool avanzado, int vida, int mapaActual) {
 	srand(time(NULL));
 
 	if (mapaActual == 1) {
-		createMap();
+		createMap2();
 	}
 	else if(mapaActual == 2){
-		createMap2();
+		createMap();
 	}
 
 
@@ -569,7 +570,7 @@ bool IniciarJuego(int mapa[51][120], bool avanzado, int vida, int mapaActual) {
 		}
 		// ***********************************************************************************************************************************************************
 
-		// ******************************************************************  Cracion de balas enemigas ***********************************************************
+		// ******************************************************************  Creacion de balas enemigas ***********************************************************
 		randomizador = rand() % 40; //Para decidir si dispara o no
 		if (randomizador == 11 && avanzado) {
 			for (int dis = 0; dis < cantEnemigos; dis++) {
@@ -783,7 +784,7 @@ bool IniciarJuego(int mapa[51][120], bool avanzado, int vida, int mapaActual) {
 		// ******************************************************************   Pantalla GAME OVER    ******************************************************************
 		if (Perder) {
 			GAMEOVER();
-			break;
+			return 0;
 		}
 		// **************************************************************************************************************************************************************
 
