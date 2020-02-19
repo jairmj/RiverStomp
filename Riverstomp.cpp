@@ -189,7 +189,7 @@ bool IniciarJuego(int mapa[51][120], bool avanzado, int vida, int mapaActual) {
 			while (1) {//Genero posiciones aleatorias dentro de los lugares permitidos
 				EnemigoPosY = rand() % 48 + 1;
 				EnemigoPosX = rand() % 118 + 1;
-				if (mapa[EnemigoPosY][EnemigoPosX] == 1)break;
+				if (mapa[EnemigoPosY][EnemigoPosX] == 1 && mapa[EnemigoPosY + 2][EnemigoPosX] == 1 && mapa[EnemigoPosY + 1][EnemigoPosX + 1] && mapa[EnemigoPosY + 1][EnemigoPosX - 1] == 1)break;
 			}
 			if (generarAlfa) {
 				MalosActuales[cantEnemigos] = Personaje(155, 206, 47, 92, 202, 5, EnemigoPosX, EnemigoPosY, 2);
@@ -234,8 +234,8 @@ bool IniciarJuego(int mapa[51][120], bool avanzado, int vida, int mapaActual) {
 		//Para quitarle la invisibilidad luego de 5 segundos
 		if (timerInvisiblidadAlfa == sec && EnemigoInvisibleExistente) {
 			MalosActuales[enemigoInvisible].invisibilidad = false;
-			MalosActuales[enemigoInvisible].DibujaJugador();
 			EnemigoInvisibleExistente = false;
+			if (!(MalosActuales[enemigoInvisible].muerto))MalosActuales[enemigoInvisible].DibujaJugador();;
 		}
 
 		//Timer
@@ -554,7 +554,12 @@ bool IniciarJuego(int mapa[51][120], bool avanzado, int vida, int mapaActual) {
 						CambioVida = true;
 					}
 
+					//Si choca con una bonificacion
 
+					if (MalosActuales[m].Jx == bonificacionPosX && MalosActuales[m].Jy == bonificacionPosY || MalosActuales[m].Jx + 1 == bonificacionPosX && MalosActuales[m].Jy+1 == bonificacionPosY || MalosActuales[m].Jx -1 == bonificacionPosX && MalosActuales[m].Jy + 1 == bonificacionPosY || MalosActuales[m].Jx == bonificacionPosX && MalosActuales[m].Jy + 2 == bonificacionPosY) intemediarioBonProy = true;
+
+					//Si choca con una Moneda
+					if (MalosActuales[m].Jx == coin.x && MalosActuales[m].Jy == coin.y || MalosActuales[m].Jx + 1 == coin.x && MalosActuales[m].Jy + 1 == coin.y || MalosActuales[m].Jx - 1 == coin.x && MalosActuales[m].Jy + 1 == coin.y || MalosActuales[m].Jx == coin.x && MalosActuales[m].Jy + 2 == coin.y) intemediarioMonedaProy= true;
 
 				}
 
